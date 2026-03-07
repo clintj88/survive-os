@@ -1,0 +1,17 @@
+__pycache__/
+*.pyc
+*.pyo
+.pytest_cache/
+*.egg-info/
+dist/
+build/
+.venv/
+venv/
+node_modules/
+.env
+*.db
+*.sqlite3
+platform/image-build/build/
+platform/image-build/output/
+platform/image-build/config/selected-modules.yml
+platform/image-build/recipes/overlays

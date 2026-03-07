@@ -16,7 +16,6 @@ modules:
     sub_modules:
       - platform/nginx
       - platform/templates
-      - platform/example-module
       - shared/db
       - shared/blob
     depends_on: []
