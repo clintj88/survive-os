@@ -1,0 +1,447 @@
+# SURVIVE OS Module Registry
+# Defines all installable modules with metadata, dependencies, and sub-modules.
+#
+# core: true  = Required for all builds (cannot be deselected)
+# core: false = Optional (user selects in configure menu)
+# depends_on: List of module IDs that must also be installed
+
+modules:
+  # ── Core (always installed) ──────────────────────────────────
+
+  - id: platform
+    name: "Platform Shell"
+    description: "Main UI shell, nginx proxy, systemd templates, shared libraries"
+    core: true
+    port: 8000
+    sub_modules:
+      - platform/nginx
+      - platform/templates
+      - platform/example-module
+      - shared/db
+      - shared/blob
+    depends_on: []
+
+  - id: identity
+    name: "Identity & Auth"
+    description: "LLDAP directory, SSSD/PAM authentication, badge provisioner, RBAC"
+    core: true
+    port: 8001
+    sub_modules:
+      - identity
+    depends_on: [platform]
+
+  - id: sync
+    name: "Sync Engine"
+    description: "CRDT sync via Automerge, peer discovery, multi-transport replication"
+    core: true
+    port: 8100
+    sub_modules:
+      - sync
+    depends_on: [platform]
+
+  - id: backup
+    name: "Backup System"
+    description: "Automated daily backups, encrypted export, paper backup, restore"
+    core: true
+    port: 8095
+    sub_modules:
+      - platform/backup
+    depends_on: [platform]
+
+  - id: frontend
+    name: "Frontend Shell"
+    description: "Preact+HTM platform UI with module sidebar"
+    core: true
+    sub_modules:
+      - frontend
+    depends_on: [platform]
+
+  # ── Communications ───────────────────────────────────────────
+
+  - id: comms-bbs
+    name: "Community BBS"
+    description: "Bulletin board with topics, threads, and CRDT sync"
+    core: false
+    category: communications
+    port: 8010
+    sub_modules:
+      - comms/bbs
+    depends_on: [platform, identity]
+
+  - id: comms-alerts
+    name: "Emergency Alerts"
+    description: "Multi-tier emergency broadcast across all comm channels"
+    core: false
+    category: communications
+    sub_modules:
+      - comms/alerts
+    depends_on: [platform, identity, comms-bbs]
+
+  - id: comms-meshtastic
+    name: "Meshtastic Gateway"
+    description: "Mesh radio bridge to Redis pub/sub, radio provisioning UI"
+    core: false
+    category: communications
+    port: 8012
+    sub_modules:
+      - comms/meshtastic-gw
+    depends_on: [platform, identity]
+
+  - id: comms-ham-radio
+    name: "Ham Radio"
+    description: "Pat/Winlink email, JS8Call messaging, frequency DB, contact scheduler"
+    core: false
+    category: communications
+    port: 8011
+    sub_modules:
+      - comms/ham-radio
+    depends_on: [platform, identity]
+
+  # ── Medical ──────────────────────────────────────────────────
+
+  - id: medical-ehr
+    name: "EHR-Lite"
+    description: "Patient records, SOAP visits, vitals, wounds, vaccinations"
+    core: false
+    category: medical
+    port: 8040
+    sub_modules:
+      - medical/ehr
+    depends_on: [platform, identity, medical-concepts]
+
+  - id: medical-concepts
+    name: "Concept Dictionary"
+    description: "Standardized clinical terminology, ICD-10/SNOMED/LOINC mappings"
+    core: false
+    category: medical
+    port: 8041
+    sub_modules:
+      - medical/concepts
+    depends_on: [platform, identity]
+
+  - id: medical-lab
+    name: "Lab Results"
+    description: "Test catalog, panels, orders, auto-interpretation, alerts"
+    core: false
+    category: medical
+    port: 8042
+    sub_modules:
+      - medical/lab
+    depends_on: [platform, identity, medical-concepts]
+
+  - id: medical-programs
+    name: "Program Enrollment"
+    description: "Clinical program workflows, state tracking, outcome recording"
+    core: false
+    category: medical
+    port: 8043
+    sub_modules:
+      - medical/programs
+    depends_on: [platform, identity, medical-concepts]
+
+  - id: medical-pharmacy
+    name: "Pharmacy"
+    description: "Drug inventory, prescriptions, interactions, dosage calculator"
+    core: false
+    category: medical
+    port: 8044
+    sub_modules:
+      - medical/pharmacy
+    depends_on: [platform, identity]
+
+  - id: medical-epidemic
+    name: "Epidemic Surveillance"
+    description: "Syndromic tracking, contact tracing, quarantine management"
+    core: false
+    category: medical
+    port: 8045
+    sub_modules:
+      - medical/epidemic
+    depends_on: [platform, identity]
+
+  - id: medical-specialty
+    name: "Specialty Care"
+    description: "Prenatal, dental, mental health, and veterinary modules"
+    core: false
+    category: medical
+    sub_modules:
+      - medical/specialty
+    depends_on: [platform, identity]
+
+  # ── Agriculture ──────────────────────────────────────────────
+
+  - id: agriculture-crops
+    name: "Crop Planner"
+    description: "Planting schedules, companion planting, harvest tracking"
+    core: false
+    category: agriculture
+    port: 8030
+    sub_modules:
+      - agriculture/crop-planner
+    depends_on: [platform, identity]
+
+  - id: agriculture-seeds
+    name: "Seed Bank"
+    description: "Seed inventory, germination tracking, viability, exchange"
+    core: false
+    category: agriculture
+    sub_modules:
+      - agriculture/seed-bank
+    depends_on: [platform, identity]
+
+  - id: agriculture-livestock
+    name: "Livestock"
+    description: "Animal records, breeding, feed calculator, vet log, production"
+    core: false
+    category: agriculture
+    sub_modules:
+      - agriculture/livestock
+    depends_on: [platform, identity]
+
+  - id: agriculture-sensors
+    name: "Sensor Integration"
+    description: "ESP32 sensor nodes via Meshtastic for soil, weather, water"
+    core: false
+    category: agriculture
+    sub_modules:
+      - agriculture/sensors
+    depends_on: [platform, identity]
+
+  # ── Security ─────────────────────────────────────────────────
+
+  - id: security
+    name: "Security / Drone Ops"
+    description: "Perimeter security, drone operations, patrol management"
+    core: false
+    category: security
+    port: 8020
+    sub_modules:
+      - security
+    depends_on: [platform, identity]
+
+  # ── Resources ────────────────────────────────────────────────
+
+  - id: resources-inventory
+    name: "General Inventory"
+    description: "Categorized items, QR scanning, stock alerts, consumption tracking"
+    core: false
+    category: resources
+    port: 8050
+    sub_modules:
+      - resources/inventory
+    depends_on: [platform, identity]
+
+  - id: resources-tools
+    name: "Tool Library"
+    description: "Tool checkout, maintenance schedules, usage tracking, reservations"
+    core: false
+    category: resources
+    sub_modules:
+      - resources/tools
+    depends_on: [platform, identity]
+
+  - id: resources-trade
+    name: "Trade / Barter Ledger"
+    description: "Double-entry bookkeeping for community trade and barter"
+    core: false
+    category: resources
+    sub_modules:
+      - resources/trade
+    depends_on: [platform, identity]
+
+  - id: resources-energy
+    name: "Energy / Fuel Tracking"
+    description: "Solar, batteries, fuel, generators, power budget"
+    core: false
+    category: resources
+    sub_modules:
+      - resources/energy
+    depends_on: [platform, identity]
+
+  - id: resources-engineering
+    name: "Engineering / Maintenance"
+    description: "Infrastructure maintenance tracking and work orders"
+    core: false
+    category: resources
+    sub_modules:
+      - resources/engineering
+    depends_on: [platform, identity]
+
+  # ── Maps ─────────────────────────────────────────────────────
+
+  - id: maps-tiles
+    name: "Tile Server"
+    description: "Offline MBTiles tile server for MapLibre GL JS"
+    core: false
+    category: maps
+    port: 8060
+    sub_modules:
+      - maps/tile-server
+    depends_on: [platform]
+
+  - id: maps-annotations
+    name: "Map Annotations"
+    description: "Collaborative annotation layers, GeoJSON import/export"
+    core: false
+    category: maps
+    port: 8061
+    sub_modules:
+      - maps/annotations
+    depends_on: [platform, identity, maps-tiles]
+
+  - id: maps-drones
+    name: "Drone Aerial Maps"
+    description: "Drone survey management, orthomosaic processing, change detection"
+    core: false
+    category: maps
+    port: 8062
+    sub_modules:
+      - maps/drone-maps
+    depends_on: [platform, identity, maps-tiles]
+
+  - id: maps-print
+    name: "Printable Maps"
+    description: "Print-ready map generation with templates and overlays"
+    core: false
+    category: maps
+    port: 8063
+    sub_modules:
+      - maps/print-maps
+    depends_on: [platform, maps-tiles]
+
+  # ── Governance ───────────────────────────────────────────────
+
+  - id: governance
+    name: "Governance"
+    description: "Census, voting, treaties, disputes, duties, journal, registry"
+    core: false
+    category: governance
+    port: 8070
+    sub_modules:
+      - governance
+    depends_on: [platform, identity]
+
+  # ── Weather ──────────────────────────────────────────────────
+
+  - id: weather
+    name: "Weather Station"
+    description: "Observations, forecasting, planting advisor, storm alerts"
+    core: false
+    category: weather
+    port: 8080
+    sub_modules:
+      - weather
+    depends_on: [platform]
+
+  # ── Education ────────────────────────────────────────────────
+
+  - id: education-kb
+    name: "Knowledge Base"
+    description: "Offline reference library with search and categorization"
+    core: false
+    category: education
+    port: 8090
+    sub_modules:
+      - education/knowledge-base
+    depends_on: [platform]
+
+  - id: education-learning
+    name: "Learning / Training"
+    description: "Courses, skill tracking, and community training programs"
+    core: false
+    category: education
+    sub_modules:
+      - education/learning
+    depends_on: [platform, identity]
+
+# ── Preset Profiles ────────────────────────────────────────────
+# Quick-select bundles for common use cases
+
+profiles:
+  minimal:
+    name: "Minimal (Core Only)"
+    description: "Platform shell, identity, sync, backup — add modules later"
+    modules: []  # Only core modules
+
+  homestead:
+    name: "Homestead"
+    description: "Small farm/homestead: agriculture, weather, inventory, medical basics"
+    modules:
+      - agriculture-crops
+      - agriculture-seeds
+      - agriculture-livestock
+      - agriculture-sensors
+      - weather
+      - resources-inventory
+      - resources-tools
+      - resources-energy
+      - medical-ehr
+      - medical-concepts
+      - medical-pharmacy
+      - education-kb
+
+  community:
+    name: "Community Hub"
+    description: "Full community node: comms, governance, trade, medical, education"
+    modules:
+      - comms-bbs
+      - comms-alerts
+      - comms-meshtastic
+      - governance
+      - resources-inventory
+      - resources-trade
+      - medical-ehr
+      - medical-concepts
+      - medical-pharmacy
+      - education-kb
+      - education-learning
+      - weather
+
+  field-medical:
+    name: "Field Medical"
+    description: "Medical-focused: full medical suite with comms for coordination"
+    modules:
+      - medical-ehr
+      - medical-concepts
+      - medical-lab
+      - medical-programs
+      - medical-pharmacy
+      - medical-epidemic
+      - medical-specialty
+      - comms-bbs
+      - comms-alerts
+      - education-kb
+
+  full:
+    name: "Full Install"
+    description: "Every module — complete SURVIVE OS installation"
+    modules:
+      - comms-bbs
+      - comms-alerts
+      - comms-meshtastic
+      - comms-ham-radio
+      - medical-ehr
+      - medical-concepts
+      - medical-lab
+      - medical-programs
+      - medical-pharmacy
+      - medical-epidemic
+      - medical-specialty
+      - agriculture-crops
+      - agriculture-seeds
+      - agriculture-livestock
+      - agriculture-sensors
+      - security
+      - resources-inventory
+      - resources-tools
+      - resources-trade
+      - resources-energy
+      - resources-engineering
+      - maps-tiles
+      - maps-annotations
+      - maps-drones
+      - maps-print
+      - governance
+      - weather
+      - education-kb
+      - education-learning

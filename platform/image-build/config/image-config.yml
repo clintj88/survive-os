@@ -51,15 +51,21 @@ system:
 # Build variants
 variants:
   minimal:
-    description: "Base OS + identity + platform shell"
+    description: "Base OS + identity + platform shell + sync + backup"
     modules:
       - platform
       - identity
+      - sync
+      - backup
+      - frontend
   full:
     description: "All SURVIVE OS modules"
     modules:
       - platform
       - identity
+      - sync
+      - backup
+      - frontend
       - comms
       - security
       - agriculture
@@ -69,6 +75,9 @@ variants:
       - governance
       - weather
       - education
+  custom:
+    description: "User-selected modules via ./configure.sh"
+    config_file: config/selected-modules.yml
 
 # Compression
 compression:

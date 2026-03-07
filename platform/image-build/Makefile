@@ -1,16 +1,20 @@
 # SURVIVE OS Image Build System
-# Usage: make build-arm64, make build-amd64, make build-all, make clean
+# Usage: make configure, make build-arm64, make build-amd64, make build-all, make clean
 
 SHELL := /bin/bash
 BUILD_SCRIPT := ./build.sh
+CONFIGURE_SCRIPT := ./configure.sh
 OUTPUT_DIR := ./output
 VARIANT ?= minimal
 
-.PHONY: build-arm64 build-amd64 build-all clean checksums help
+.PHONY: configure build-arm64 build-amd64 build-all clean checksums help
 
 help: ## Show this help
 	@grep -E '^[a-zA-Z_-]+:.*?## .*$$' $(MAKEFILE_LIST) | \
 		awk 'BEGIN {FS = ":.*?## "}; {printf "  \033[36m%-15s\033[0m %s\n", $$1, $$2}'
+
+configure: ## Interactive module selector (generates config for custom builds)
+	@$(CONFIGURE_SCRIPT)
 
 build-arm64: ## Build ARM64 (Raspberry Pi 4) image
 	@echo "Building ARM64 image (variant: $(VARIANT))..."

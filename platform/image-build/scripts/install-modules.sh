@@ -7,6 +7,7 @@ set -euo pipefail
 ROOTFS="${1:?Usage: install-modules.sh <rootfs_path> <variant> <repo_root>}"
 VARIANT="${2:-minimal}"
 REPO_ROOT="${3:-$(cd "$(dirname "$0")/../../../" && pwd)}"
+IMAGE_BUILD_DIR="$(cd "$(dirname "$0")/.." && pwd)"
 
 SURVIVE_LIB="${ROOTFS}/var/lib/survive"
 SURVIVE_ETC="${ROOTFS}/etc/survive"
@@ -17,15 +18,101 @@ echo "==> Installing SURVIVE OS modules (variant: ${VARIANT})"
 echo "    Root filesystem: ${ROOTFS}"
 echo "    Source repo: ${REPO_ROOT}"
 
-# Modules to install based on variant
-MINIMAL_MODULES=(platform identity)
-FULL_MODULES=(platform identity comms security agriculture medical resources maps governance weather education)
+# ── Resolve module list based on variant ──
 
-if [ "$VARIANT" = "full" ]; then
-    MODULES=("${FULL_MODULES[@]}")
-else
-    MODULES=("${MINIMAL_MODULES[@]}")
-fi
+MODULES=()
+
+# Minimal: core platform dirs only
+MINIMAL_DIRS=(
+    platform/nginx
+    platform/templates
+    shared/db
+    shared/blob
+    sync
+    platform/backup
+    identity
+    frontend
+)
+
+# Full: everything
+FULL_DIRS=(
+    platform/nginx
+    platform/templates
+    shared/db
+    shared/blob
+    sync
+    platform/backup
+    identity
+    frontend
+    comms/bbs
+    comms/alerts
+    comms/meshtastic-gw
+    comms/ham-radio
+    medical/ehr
+    medical/concepts
+    medical/lab
+    medical/programs
+    medical/pharmacy
+    medical/epidemic
+    medical/specialty
+    agriculture/crop-planner
+    agriculture/seed-bank
+    agriculture/livestock
+    agriculture/sensors
+    security
+    resources/inventory
+    resources/tools
+    resources/trade
+    resources/energy
+    resources/engineering
+    maps/tile-server
+    maps/annotations
+    maps/drone-maps
+    maps/print-maps
+    governance
+    weather
+    education/knowledge-base
+    education/learning
+)
+
+case "$VARIANT" in
+    full)
+        MODULES=("${FULL_DIRS[@]}")
+        ;;
+    custom)
+        # Read sub_module_dirs from selected-modules.yml
+        CUSTOM_CONFIG="${IMAGE_BUILD_DIR}/config/selected-modules.yml"
+        if [ ! -f "$CUSTOM_CONFIG" ]; then
+            echo "ERROR: Custom config not found: ${CUSTOM_CONFIG}"
+            echo "Run ./configure.sh first."
+            exit 1
+        fi
+        echo "    Custom config: ${CUSTOM_CONFIG}"
+        # Parse the sub_module_dirs section
+        local_in_section=false
+        while IFS= read -r line; do
+            if [[ "$line" == "sub_module_dirs:" ]]; then
+                local_in_section=true
+                continue
+            fi
+            if $local_in_section; then
+                if [[ "$line" =~ ^[[:space:]]+-[[:space:]]+(.*) ]]; then
+                    MODULES+=("${BASH_REMATCH[1]}")
+                elif [[ ! "$line" =~ ^[[:space:]] ]]; then
+                    break
+                fi
+            fi
+        done < "$CUSTOM_CONFIG"
+        ;;
+    *)
+        # minimal (default)
+        MODULES=("${MINIMAL_DIRS[@]}")
+        ;;
+esac
+
+echo "    Modules to install: ${#MODULES[@]}"
+
+# ── Install functions ──
 
 # Install nginx proxy config
 install_nginx() {
@@ -51,7 +138,7 @@ install_service_template() {
     fi
 }
 
-# Install a single module
+# Install a single module/sub-module
 install_module() {
     local module="$1"
     local module_dir="${REPO_ROOT}/${module}"
@@ -72,7 +159,10 @@ install_module() {
     mkdir -p "${dest}"
     cp -r "${module_dir}/"* "${dest}/" 2>/dev/null || true
 
-    # Install Python dependencies if requirements.txt or pyproject.toml exists
+    # Remove __pycache__ from installed module
+    find "${dest}" -type d -name "__pycache__" -exec rm -rf {} + 2>/dev/null || true
+
+    # Install Python dependencies if requirements.txt exists
     if [ -f "${module_dir}/requirements.txt" ]; then
         echo "     Installing Python dependencies for ${module}"
         chroot "${ROOTFS}" pip3 install --break-system-packages \
@@ -91,15 +181,39 @@ install_module() {
     # Copy config file if it exists
     for cfg in "${module_dir}"/*.yml "${module_dir}"/config/*.yml; do
         if [ -f "$cfg" ]; then
+            local cfg_name
+            cfg_name=$(basename "$cfg")
+            # Don't copy module registry or test configs
+            [[ "$cfg_name" == "modules.yml" ]] && continue
+            [[ "$cfg_name" == "selected-modules.yml" ]] && continue
+            [[ "$cfg_name" == "image-config.yml" ]] && continue
             cp "$cfg" "${SURVIVE_ETC}/" 2>/dev/null || true
         fi
     done
 
-    # Enable systemd service
-    if [ -f "${SYSTEMD_DIR}/survive-module@.service" ]; then
-        ln -sf "survive-module@.service" \
-            "${SYSTEMD_DIR}/multi-user.target.wants/survive-module@${module}.service" 2>/dev/null || true
-    fi
+    # Install and enable dedicated systemd service if present
+    for svc in "${module_dir}"/survive-*.service; do
+        if [ -f "$svc" ]; then
+            local svc_name
+            svc_name=$(basename "$svc")
+            cp "$svc" "${SYSTEMD_DIR}/${svc_name}"
+            ln -sf "../${svc_name}" \
+                "${SYSTEMD_DIR}/multi-user.target.wants/${svc_name}" 2>/dev/null || true
+            echo "     Enabled service: ${svc_name}"
+        fi
+    done
+
+    # Install systemd timers if present
+    for timer in "${module_dir}"/survive-*.timer; do
+        if [ -f "$timer" ]; then
+            local timer_name
+            timer_name=$(basename "$timer")
+            cp "$timer" "${SYSTEMD_DIR}/${timer_name}"
+            ln -sf "../${timer_name}" \
+                "${SYSTEMD_DIR}/timers.target.wants/${timer_name}" 2>/dev/null || true
+            echo "     Enabled timer: ${timer_name}"
+        fi
+    done
 }
 
 # Set up LLDAP
@@ -144,8 +258,25 @@ EOF
     chmod 600 "${sssd_dir}/sssd.conf"
 }
 
-# Main installation sequence
+# Write installed module manifest for first-boot and runtime use
+write_manifest() {
+    echo "  -> Writing module manifest"
+    local manifest="${SURVIVE_ETC}/installed-modules.yml"
+    {
+        echo "# SURVIVE OS Installed Modules"
+        echo "# Generated during image build on $(date -u '+%Y-%m-%dT%H:%M:%SZ')"
+        echo "variant: ${VARIANT}"
+        echo "modules:"
+        for module in "${MODULES[@]}"; do
+            echo "  - ${module}"
+        done
+    } > "$manifest"
+}
+
+# ── Main installation sequence ──
+
 mkdir -p "${SYSTEMD_DIR}/multi-user.target.wants"
+mkdir -p "${SYSTEMD_DIR}/timers.target.wants"
 
 install_nginx
 install_service_template
@@ -156,9 +287,10 @@ done
 
 setup_lldap
 setup_sssd
+write_manifest
 
 # Set ownership
 chown -R 900:900 "${SURVIVE_LIB}" 2>/dev/null || true
 chown -R 900:900 "${SURVIVE_ETC}" 2>/dev/null || true
 
-echo "==> Module installation complete (${#MODULES[@]} modules)"
+echo "==> Module installation complete (${#MODULES[@]} modules installed)"
