@@ -1,0 +1,23 @@
+# SURVIVE OS Meshtastic Gateway Configuration
+# Copy to /etc/survive/meshtastic-gw.yml
+
+database:
+  path: /var/lib/survive/meshtastic-gw/messages.db
+
+server:
+  host: 0.0.0.0
+  port: 8010
+
+radio:
+  connection: serial
+  serial_port: /dev/ttyUSB0
+  ble_address: ""
+
+redis:
+  url: redis://localhost:6379
+  channel: comms.meshtastic
+
+lldap:
+  url: http://localhost:17170
+
+version: "0.1.0"
