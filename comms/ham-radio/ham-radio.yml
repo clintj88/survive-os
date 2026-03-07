@@ -1,0 +1,22 @@
+# SURVIVE OS Ham Radio Configuration
+# Copy to /etc/survive/ham-radio.yml
+
+database:
+  path: /var/lib/survive/ham-radio/ham-radio.db
+
+server:
+  host: 0.0.0.0
+  port: 8010
+
+pat:
+  binary: /usr/local/bin/pat
+  mycall: N0CALL
+
+js8call:
+  host: 127.0.0.1
+  port: 2442
+
+redis:
+  url: redis://localhost:6379
+
+version: "0.1.0"
