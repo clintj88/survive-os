@@ -1,0 +1,17 @@
+# SURVIVE OS Tool Library Configuration
+# Copy to /etc/survive/tools.yml
+
+database:
+  path: /var/lib/survive/tools/tools.db
+
+server:
+  host: 0.0.0.0
+  port: 8050
+
+overdue_days_threshold: 7
+
+redis:
+  url: redis://localhost:6379
+  channel: resources.tools-alerts
+
+version: "0.1.0"

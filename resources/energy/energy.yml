@@ -1,0 +1,16 @@
+database:
+  path: /var/lib/survive/energy/energy.db
+
+server:
+  host: 0.0.0.0
+  port: 8050
+
+alerts:
+  battery_low_soc_percent: 20
+  fuel_low_days_supply: 7
+
+redis:
+  url: redis://localhost:6379
+  channel: resources.energy-alerts
+
+version: "0.1.0"
