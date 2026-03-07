@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Knowledge Base - SURVIVE OS</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div id="app">
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h2>Knowledge Base</h2>
+                <div class="search-box">
+                    <input type="text" id="search-input" placeholder="Search articles..." autocomplete="off">
+                </div>
+            </div>
+            <div id="categories"></div>
+        </nav>
+        <main id="content">
+            <div id="article-list" class="hidden"></div>
+            <div id="article-view" class="hidden"></div>
+            <div id="search-results" class="hidden"></div>
+            <div id="welcome">
+                <h1>SURVIVE OS Knowledge Base</h1>
+                <p>Select a category from the sidebar to browse survival knowledge, or use the search bar to find specific topics.</p>
+                <div id="category-cards"></div>
+            </div>
+        </main>
+    </div>
+    <script src="/app.js"></script>
+</body>
+</html>
