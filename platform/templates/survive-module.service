@@ -1,0 +1,37 @@
+[Unit]
+Description=SURVIVE OS - %i module
+Documentation=https://survive-os.local/docs/%i
+After=network.target redis.service
+Wants=redis.service
+
+[Service]
+Type=simple
+User=survive-%i
+Group=survive
+EnvironmentFile=-/etc/survive/%i.env
+WorkingDirectory=/opt/survive/%i
+ExecStart=/opt/survive/%i/start.sh
+ExecStartPost=/usr/lib/survive/health-check.sh %i
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+# Logging
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=survive-%i
+
+# Security hardening
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/survive/%i
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+# Resource limits (Raspberry Pi 4 friendly)
+MemoryMax=512M
+CPUQuota=80%
+
+[Install]
+WantedBy=multi-user.target
