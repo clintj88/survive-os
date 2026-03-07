@@ -1,0 +1,26 @@
+[Unit]
+Description=SURVIVE OS Community BBS
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=survive
+Group=survive
+WorkingDirectory=/opt/survive/comms/bbs
+ExecStart=/opt/survive/comms/bbs/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8010
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=survive-bbs
+
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/survive/bbs
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

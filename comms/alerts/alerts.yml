@@ -1,0 +1,24 @@
+# SURVIVE OS Emergency Alerts Configuration
+# Copy to /etc/survive/alerts.yml
+
+database:
+  path: /var/lib/survive/alerts/alerts.db
+
+server:
+  host: 0.0.0.0
+  port: 8011
+
+redis:
+  host: localhost
+  port: 6379
+
+broadcast_channels:
+  - comms.alerts
+  - comms.meshtastic
+  - comms.ham-radio
+
+authorized_roles:
+  - admin
+  - security
+
+version: "0.1.0"
