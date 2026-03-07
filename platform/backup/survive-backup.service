@@ -1,0 +1,17 @@
+[Unit]
+Description=SURVIVE OS Backup Service
+After=network.target
+
+[Service]
+Type=simple
+ExecStart=/usr/bin/python3 -m uvicorn platform.backup.app.main:app --host 127.0.0.1 --port 8095
+WorkingDirectory=/opt/survive-os
+User=survive
+Group=survive
+Restart=on-failure
+RestartSec=10
+StandardOutput=journal
+StandardError=journal
+
+[Install]
+WantedBy=multi-user.target

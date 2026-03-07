@@ -1,0 +1,8 @@
+fastapi>=0.100.0
+uvicorn>=0.23.0
+pyyaml>=6.0
+cryptography>=41.0
+qrcode>=7.4
+pysqlcipher3>=1.2.0
+pytest>=7.0
+httpx>=0.24.0
