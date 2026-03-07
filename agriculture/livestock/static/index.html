@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Livestock Management - SURVIVE OS</title>
+    <link rel="stylesheet" href="/style.css">
+</head>
+<body>
+    <div id="app">
+        <nav id="sidebar">
+            <div class="sidebar-header">
+                <h2>Livestock</h2>
+            </div>
+            <div id="nav-tabs">
+                <div class="nav-item active" data-tab="herd">Herd</div>
+                <div class="nav-item" data-tab="breeding">Breeding</div>
+                <div class="nav-item" data-tab="feed">Feed</div>
+                <div class="nav-item" data-tab="vet">Veterinary</div>
+                <div class="nav-item" data-tab="production">Production</div>
+            </div>
+        </nav>
+        <main id="content">
+            <div id="tab-herd" class="tab-content"></div>
+            <div id="tab-breeding" class="tab-content hidden"></div>
+            <div id="tab-feed" class="tab-content hidden"></div>
+            <div id="tab-vet" class="tab-content hidden"></div>
+            <div id="tab-production" class="tab-content hidden"></div>
+        </main>
+    </div>
+    <script src="/app.js"></script>
+</body>
+</html>

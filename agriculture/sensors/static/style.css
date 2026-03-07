@@ -1,0 +1,36 @@
+* { margin: 0; padding: 0; box-sizing: border-box; }
+body { font-family: system-ui, sans-serif; background: #0f1117; color: #e0e0e0; }
+header { background: #1a1d27; padding: 1rem 1.5rem; border-bottom: 1px solid #2a2d37; }
+header h1 { font-size: 1.25rem; margin-bottom: 0.75rem; color: #4fc3f7; }
+nav { display: flex; gap: 0.5rem; flex-wrap: wrap; }
+.tab { background: #252830; border: 1px solid #3a3d47; color: #a0a0a0; padding: 0.5rem 1rem;
+       border-radius: 6px; cursor: pointer; font-size: 0.875rem; }
+.tab:hover { background: #2a2d37; color: #e0e0e0; }
+.tab.active { background: #1565c0; border-color: #1976d2; color: #fff; }
+main { padding: 1.5rem; max-width: 1200px; margin: 0 auto; }
+
+.cards { display: grid; grid-template-columns: repeat(auto-fill, minmax(260px, 1fr)); gap: 1rem; margin-bottom: 1.5rem; }
+.card { background: #1a1d27; border: 1px solid #2a2d37; border-radius: 8px; padding: 1rem; }
+.card h3 { font-size: 0.875rem; color: #8a8d97; margin-bottom: 0.5rem; text-transform: uppercase; letter-spacing: 0.05em; }
+.card .value { font-size: 1.75rem; font-weight: 600; }
+.card .unit { font-size: 0.875rem; color: #8a8d97; margin-left: 0.25rem; }
+.card .meta { font-size: 0.75rem; color: #6a6d77; margin-top: 0.5rem; }
+
+.status-online { color: #4caf50; }
+.status-offline { color: #f44336; }
+.status-low-battery { color: #ff9800; }
+
+table { width: 100%; border-collapse: collapse; background: #1a1d27; border-radius: 8px; overflow: hidden; }
+th, td { padding: 0.625rem 0.75rem; text-align: left; border-bottom: 1px solid #2a2d37; font-size: 0.875rem; }
+th { background: #252830; color: #8a8d97; text-transform: uppercase; font-size: 0.75rem; letter-spacing: 0.05em; }
+
+.alert-row { background: #1a1013; border-left: 3px solid #f44336; }
+.alert-badge { display: inline-block; background: #c62828; color: #fff; padding: 0.125rem 0.5rem;
+               border-radius: 4px; font-size: 0.75rem; font-weight: 600; }
+.trend-falling { color: #f44336; }
+.trend-rising { color: #4caf50; }
+.trend-stable { color: #ff9800; }
+
+.section-title { font-size: 1rem; margin-bottom: 1rem; color: #b0b3bd; }
+.empty { text-align: center; padding: 2rem; color: #6a6d77; }
+.refresh-note { text-align: right; font-size: 0.75rem; color: #4a4d57; margin-bottom: 0.5rem; }
