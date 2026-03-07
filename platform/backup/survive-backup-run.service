@@ -1,18 +1,17 @@
 [Unit]
-Description=SURVIVE OS Backup Service (API)
+Description=SURVIVE OS Daily Backup Job
 After=network.target
+Requires=survive-backup.service
 
 [Service]
-Type=simple
-ExecStart=/opt/survive-os/venv/bin/uvicorn platform.backup.app.main:app --host 127.0.0.1 --port 8095
+Type=oneshot
+ExecStart=/opt/survive-os/venv/bin/python3 -m platform.backup.app.main --run-backup
 WorkingDirectory=/opt/survive-os
 User=survive
 Group=survive
-Restart=on-failure
-RestartSec=10
 StandardOutput=journal
 StandardError=journal
-SyslogIdentifier=survive-backup
+SyslogIdentifier=survive-backup-run
 
 # Hardening
 NoNewPrivileges=yes
@@ -20,6 +19,3 @@ ProtectSystem=strict
 ReadWritePaths=/var/lib/survive /mnt/backup
 ProtectHome=yes
 PrivateTmp=yes
-
-[Install]
-WantedBy=multi-user.target
