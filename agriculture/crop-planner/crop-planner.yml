@@ -1,0 +1,21 @@
+# SURVIVE OS Crop Rotation Planner Configuration
+# Copy to /etc/survive/crop-planner.yml
+
+database:
+  path: /var/lib/survive/crop-planner/crop-planner.db
+
+server:
+  host: 0.0.0.0
+  port: 8030
+
+frost_dates:
+  last_spring: "04-15"
+  first_fall: "10-15"
+
+climate_zone: temperate
+
+redis:
+  url: redis://localhost:6379
+  weather_channel: weather.observations
+
+version: "0.1.0"
