@@ -34,9 +34,10 @@ Usage: $(basename "$0") --arch <arch> [options]
 Options:
   --arch arm64|amd64    Target architecture (required)
   --output <path>       Output file path (default: output/survive-os-<arch>.img.xz)
-  --variant minimal|full  Build variant (default: minimal)
+  --variant minimal|full|custom  Build variant (default: minimal)
                           minimal: base OS + identity + platform shell
                           full: all SURVIVE OS modules
+                          custom: use config from ./configure.sh
   --suite <suite>       Debian suite (default: bookworm)
   --mirror <url>        Debian mirror URL
   -h, --help            Show this help
@@ -68,7 +69,16 @@ done
 # Validate
 [[ -z "$ARCH" ]] && error "Architecture required. Use --arch arm64 or --arch amd64"
 [[ "$ARCH" != "arm64" && "$ARCH" != "amd64" ]] && error "Architecture must be arm64 or amd64"
-[[ "$VARIANT" != "minimal" && "$VARIANT" != "full" ]] && error "Variant must be minimal or full"
+[[ "$VARIANT" != "minimal" && "$VARIANT" != "full" && "$VARIANT" != "custom" ]] && error "Variant must be minimal, full, or custom"
+
+# Validate custom config exists
+if [ "$VARIANT" = "custom" ]; then
+    CUSTOM_CONFIG="${SCRIPT_DIR}/config/selected-modules.yml"
+    if [ ! -f "$CUSTOM_CONFIG" ]; then
+        error "Custom variant requires config/selected-modules.yml. Run ./configure.sh first."
+    fi
+    log "Using custom module selection from: ${CUSTOM_CONFIG}"
+fi
 
 IMAGE_NAME="survive-os-${ARCH}.img"
 [[ -z "$OUTPUT" ]] && OUTPUT="${OUTPUT_DIR}/${IMAGE_NAME}.xz"

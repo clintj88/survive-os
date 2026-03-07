@@ -51,19 +51,37 @@ if [ ! -f "${LLDAP_DIR}/.admin-password" ]; then
     fi
 fi
 
-# Create SQLite databases for all modules
+# Create SQLite databases for installed modules
 echo "[3/6] Creating module databases..."
-MODULES=(platform identity comms security agriculture medical resources maps governance weather education)
-for module in "${MODULES[@]}"; do
-    DB_DIR="/var/lib/survive/${module}"
-    DB_FILE="${DB_DIR}/${module}.db"
-    mkdir -p "$DB_DIR"
-    if [ ! -f "$DB_FILE" ]; then
-        sqlite3 "$DB_FILE" "CREATE TABLE IF NOT EXISTS _meta (key TEXT PRIMARY KEY, value TEXT); INSERT OR IGNORE INTO _meta VALUES ('version', '1.0.0'), ('created', datetime('now'));"
-        echo "  Created database: ${module}"
-    fi
-    chown -R survive:survive "$DB_DIR"
-done
+MANIFEST="/etc/survive/installed-modules.yml"
+if [ -f "$MANIFEST" ]; then
+    while IFS= read -r line; do
+        if [[ "$line" =~ ^[[:space:]]+-[[:space:]]+(.*) ]]; then
+            module="${BASH_REMATCH[1]}"
+            DB_DIR="/var/lib/survive/${module}"
+            DB_NAME=$(basename "$module")
+            DB_FILE="${DB_DIR}/${DB_NAME}.db"
+            mkdir -p "$DB_DIR"
+            if [ ! -f "$DB_FILE" ]; then
+                sqlite3 "$DB_FILE" "CREATE TABLE IF NOT EXISTS _meta (key TEXT PRIMARY KEY, value TEXT); INSERT OR IGNORE INTO _meta VALUES ('version', '1.0.0'), ('created', datetime('now'));"
+                echo "  Created database: ${module}"
+            fi
+            chown -R survive:survive "$DB_DIR"
+        fi
+    done < "$MANIFEST"
+else
+    echo "  No module manifest found, using defaults"
+    for module in platform identity; do
+        DB_DIR="/var/lib/survive/${module}"
+        DB_FILE="${DB_DIR}/${module}.db"
+        mkdir -p "$DB_DIR"
+        if [ ! -f "$DB_FILE" ]; then
+            sqlite3 "$DB_FILE" "CREATE TABLE IF NOT EXISTS _meta (key TEXT PRIMARY KEY, value TEXT); INSERT OR IGNORE INTO _meta VALUES ('version', '1.0.0'), ('created', datetime('now'));"
+            echo "  Created database: ${module}"
+        fi
+        chown -R survive:survive "$DB_DIR"
+    done
+fi
 
 # Set up Redis
 echo "[4/6] Configuring Redis..."

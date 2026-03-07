@@ -1,6 +1,6 @@
 # SURVIVE OS Image Builder
 
-Build system for producing bootable SURVIVE OS images for ARM64 (Raspberry Pi 4) and x86_64 hardware.
+Build system for producing bootable SURVIVE OS images for ARM64 (Raspberry Pi 4) and x86_64 hardware, with an interactive module selector.
 
 ## Prerequisites
 
@@ -15,65 +15,116 @@ sudo apt-get install debootstrap parted dosfstools e2fsprogs xz-utils
 
 # For cross-architecture builds
 sudo apt-get install qemu-user-static binfmt-support
+
+# For interactive configurator (optional, falls back to text menu)
+sudo apt-get install whiptail  # or: dialog
 ```
 
-## Usage
-
-### Quick Start
+## Quick Start
 
 ```bash
-# Build ARM64 image for Raspberry Pi 4
-make build-arm64
+cd platform/image-build
 
-# Build x86_64 image
-make build-amd64
+# 1. Choose your modules (interactive menu)
+make configure
 
-# Build both architectures in parallel
-make build-all
-
-# Build full variant (all modules)
-make build-all VARIANT=full
+# 2. Build the image
+make build-arm64 VARIANT=custom    # Raspberry Pi 4
+make build-amd64 VARIANT=custom    # x86_64 PC
 ```
 
-### Build Script Options
+## Module Configurator
+
+Run `./configure.sh` to interactively select which modules to include in your image.
+
+### Preset Profiles
+
+Start from a profile, then customize:
+
+| Profile | Description | Modules |
+|---------|-------------|---------|
+| **Minimal** | Core only — add modules later | platform, identity, sync, backup, frontend |
+| **Homestead** | Small farm/homestead | agriculture, weather, inventory, tools, medical basics |
+| **Community** | Full community hub | comms, governance, trade, medical, education |
+| **Field Medical** | Medical-focused deployment | full medical suite + comms |
+| **Full** | Everything installed | all 29 optional modules |
+
+### Core Modules (always installed)
+
+These cannot be deselected — they are required for SURVIVE OS to function:
+
+| Module | Description |
+|--------|-------------|
+| **★ Platform Shell** | Main UI, nginx proxy, shared libraries |
+| **★ Identity & Auth** | LLDAP, SSSD/PAM, RBAC |
+| **★ Sync Engine** | CRDT replication via Automerge |
+| **★ Backup System** | Automated daily backups |
+| **★ Frontend Shell** | Preact+HTM sidebar UI |
+
+### CLI Options
+
+```bash
+./configure.sh [options]
+
+Options:
+  --output <path>     Output file (default: config/selected-modules.yml)
+  --profile <name>    Start with preset (minimal, homestead, community, field-medical, full)
+  --no-tui            Use text menu instead of dialog/whiptail
+```
+
+### Non-Interactive
+
+Generate a config from a profile without the menu:
+
+```bash
+./configure.sh --profile homestead --no-tui
+```
+
+## Build Variants
 
 ```bash
 ./build.sh --arch arm64|amd64 [options]
 
 Options:
-  --arch arm64|amd64      Target architecture (required)
-  --output <path>         Output file path
-  --variant minimal|full  Build variant (default: minimal)
-  --suite <suite>         Debian suite (default: bookworm)
-  --mirror <url>          Debian mirror URL
+  --arch arm64|amd64          Target architecture (required)
+  --output <path>             Output file path
+  --variant minimal|full|custom  Build variant (default: minimal)
+  --suite <suite>             Debian suite (default: bookworm)
+  --mirror <url>              Debian mirror URL
 ```
 
-### Build Variants
+| Variant | Description |
+|---------|-------------|
+| `minimal` | Core modules only (platform, identity, sync, backup, frontend) |
+| `full` | All modules — complete SURVIVE OS |
+| `custom` | Modules from `config/selected-modules.yml` (run `./configure.sh` first) |
 
-| Variant | Modules | Use Case |
-|---------|---------|----------|
-| `minimal` | platform, identity | Base node, add modules later |
-| `full` | All 11 modules | Complete SURVIVE OS installation |
+### Make Targets
+
+```bash
+make help           # Show all targets
+make configure      # Interactive module selector
+make build-arm64    # Build ARM64 image
+make build-amd64    # Build AMD64 image
+make build-all      # Build both (parallel)
+make checksums      # Generate SHA256 checksums
+make clean          # Remove build artifacts
+```
+
+Pass variant: `make build-arm64 VARIANT=custom`
 
 ## Flashing Images
 
 ### Raspberry Pi 4 (ARM64)
 
 ```bash
-# Decompress and write to SD card
 xz -d output/survive-os-arm64.img.xz -c | sudo dd of=/dev/sdX bs=4M status=progress
-
-# Verify
-sudo sync
 ```
 
 ### x86_64 PC / USB Drive
 
 ```bash
-# Decompress and write to USB drive
 xz -d output/survive-os-amd64.img.xz -c | sudo dd of=/dev/sdX bs=4M status=progress
-
-# Or use a tool like balenaEtcher with the .img.xz file directly
 ```
 
 Replace `/dev/sdX` with your actual device (check with `lsblk`).
@@ -84,33 +135,38 @@ On first boot, SURVIVE OS will:
 
 1. Generate SSH host keys
 2. Initialize the LLDAP identity directory
-3. Create SQLite databases for all modules
+3. Create SQLite databases for installed modules only
 4. Configure Redis
-5. Start WiFi AP if no wired network is detected (SSID: `SURVIVE-NODE`, password: `survive-setup`)
+5. Start WiFi AP if no wired network detected (SSID: `SURVIVE-NODE`, password: `survive-setup`)
 6. Display the setup URL on console
 
 Access the web UI at `http://survive-node.local` or `http://<ip-address>`.
 
 ## Output
 
-Built images are placed in `output/`:
-
 ```
 output/
-  survive-os-arm64.img.xz        # Compressed ARM64 image
+  survive-os-arm64.img.xz         # Compressed ARM64 image
   survive-os-arm64.img.xz.sha256  # Checksum
-  survive-os-amd64.img.xz        # Compressed x86_64 image
+  survive-os-amd64.img.xz         # Compressed x86_64 image
   survive-os-amd64.img.xz.sha256  # Checksum
 ```
 
 ## Architecture
 
-The build system uses **debos** (Debian OS builder) for declarative image building with YAML recipes, falling back to **debootstrap** for manual rootfs construction when debos is unavailable.
+The build system uses **debos** for declarative image building, falling back to **debootstrap** for manual rootfs construction.
 
 ```
-recipes/base.yaml   -> Common Debian base (packages, users, services)
-recipes/arm64.yaml  -> Pi 4 kernel, firmware, boot config
-recipes/amd64.yaml  -> x86 kernel, GRUB bootloader
+configure.sh          -> Interactive module selector (generates selected-modules.yml)
+build.sh              -> Main build script (debootstrap/debos)
+config/
+  modules.yml         -> Module registry (IDs, deps, core flags, profiles)
+  selected-modules.yml -> Generated module selection (from configure.sh)
+  image-config.yml    -> Image settings (partitions, packages, variants)
+scripts/
+  install-modules.sh  -> Installs selected modules into rootfs
+  first-boot.sh       -> First boot initialization (reads module manifest)
+  configure-network.sh -> Network/firewall setup
 ```
 
 ### Partition Layouts
