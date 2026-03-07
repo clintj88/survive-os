@@ -1,0 +1,13 @@
+database:
+  path: /var/lib/survive/drone-maps/drone-maps.db
+
+server:
+  host: 0.0.0.0
+  port: 8062
+
+redis:
+  url: redis://localhost:6379
+
+storage:
+  image_dir: /var/lib/survive/drone-maps/images
+  output_dir: /var/lib/survive/drone-maps/output

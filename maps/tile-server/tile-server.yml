@@ -1,0 +1,13 @@
+# SURVIVE OS Tile Server Configuration
+database:
+  path: /var/lib/survive/tile-server/tile-server.db
+
+server:
+  host: 0.0.0.0
+  port: 8060
+
+redis:
+  url: redis://localhost:6379
+
+tiles:
+  mbtiles_dir: /var/lib/survive/tile-server/mbtiles

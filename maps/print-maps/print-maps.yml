@@ -1,0 +1,13 @@
+database:
+  path: /var/lib/survive/print-maps/print-maps.db
+
+server:
+  host: 0.0.0.0
+  port: 8063
+
+redis:
+  url: redis://localhost:6379
+
+output_dir: /var/lib/survive/print-maps/output
+
+version: "0.1.0"

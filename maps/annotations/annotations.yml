@@ -1,0 +1,9 @@
+database:
+  path: /var/lib/survive/map-annotations/annotations.db
+
+server:
+  host: 0.0.0.0
+  port: 8061
+
+redis:
+  url: redis://localhost:6379

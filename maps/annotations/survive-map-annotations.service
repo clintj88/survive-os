@@ -1,0 +1,26 @@
+[Unit]
+Description=SURVIVE OS Map Annotations
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=survive
+Group=survive
+WorkingDirectory=/opt/survive/maps/annotations
+ExecStart=/opt/survive/maps/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8061
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=survive-map-annotations
+
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/survive/map-annotations
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
