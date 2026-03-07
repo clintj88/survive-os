@@ -1,0 +1,16 @@
+# SURVIVE OS Trade & Barter Ledger Configuration
+# Copy to /etc/survive/trade.yml
+
+database:
+  path: /var/lib/survive/trade/trade.db
+
+server:
+  host: 0.0.0.0
+  port: 8050
+
+redis:
+  url: redis://localhost:6379
+
+base_unit: labor_hours
+
+version: "0.1.0"
