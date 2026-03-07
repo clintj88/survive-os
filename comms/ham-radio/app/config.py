@@ -12,7 +12,7 @@ DEFAULT_CONFIG: dict[str, Any] = {
     },
     "server": {
         "host": "0.0.0.0",
-        "port": 8010,
+        "port": 8011,
     },
     "pat": {
         "binary": "/usr/local/bin/pat",
