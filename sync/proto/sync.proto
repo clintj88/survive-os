@@ -1,0 +1,89 @@
+syntax = "proto3";
+
+package survive.sync;
+
+// Sync protocol messages for SURVIVE OS CRDT engine.
+// Generate Python bindings: protoc --python_out=. sync.proto
+
+message VectorClock {
+  map<string, uint64> entries = 1;
+}
+
+message ChangeEntry {
+  string node_id = 1;
+  uint64 seq = 2;
+  double timestamp = 3;
+  bytes changes_json = 4;  // JSON-encoded changes
+}
+
+message SyncDocument {
+  string doc_id = 1;
+  string doc_type = 2;
+  string node_id = 3;
+  bytes data_json = 4;  // JSON-encoded data
+  VectorClock vector_clock = 5;
+  repeated ChangeEntry history = 6;
+  double created_at = 7;
+  double updated_at = 8;
+}
+
+message HandshakeRequest {
+  string sender_id = 1;
+  string community = 2;
+  string role = 3;
+  map<string, VectorClock> document_clocks = 4;
+}
+
+message HandshakeResponse {
+  string sender_id = 1;
+  string community = 2;
+  repeated string needed_doc_ids = 3;
+  repeated string offered_doc_ids = 4;
+}
+
+message DocumentExchange {
+  string sender_id = 1;
+  repeated SyncDocument documents = 2;
+}
+
+message DocumentAck {
+  string sender_id = 1;
+  string doc_id = 2;
+  bool success = 3;
+  string error = 4;
+}
+
+message PeerAnnounce {
+  string node_id = 1;
+  string name = 2;
+  string role = 3;
+  string community = 4;
+  string host = 5;
+  uint32 port = 6;
+}
+
+message SyncMessage {
+  enum Type {
+    HANDSHAKE_REQUEST = 0;
+    HANDSHAKE_RESPONSE = 1;
+    DOCUMENT_OFFER = 2;
+    DOCUMENT_REQUEST = 3;
+    DOCUMENT_DATA = 4;
+    DOCUMENT_ACK = 5;
+    PEER_ANNOUNCE = 6;
+    SYNC_COMPLETE = 7;
+  }
+
+  Type type = 1;
+  string msg_id = 2;
+  string sender_id = 3;
+  double timestamp = 4;
+
+  oneof payload {
+    HandshakeRequest handshake_request = 10;
+    HandshakeResponse handshake_response = 11;
+    DocumentExchange document_exchange = 12;
+    DocumentAck document_ack = 13;
+    PeerAnnounce peer_announce = 14;
+  }
+}

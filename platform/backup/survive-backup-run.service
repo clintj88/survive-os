@@ -1,0 +1,21 @@
+[Unit]
+Description=SURVIVE OS Daily Backup Job
+After=network.target
+Requires=survive-backup.service
+
+[Service]
+Type=oneshot
+ExecStart=/opt/survive-os/venv/bin/python3 -m platform.backup.app.main --run-backup
+WorkingDirectory=/opt/survive-os
+User=survive
+Group=survive
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=survive-backup-run
+
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/survive /mnt/backup
+ProtectHome=yes
+PrivateTmp=yes

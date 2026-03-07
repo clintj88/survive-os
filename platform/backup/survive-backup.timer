@@ -1,0 +1,11 @@
+[Unit]
+Description=SURVIVE OS Daily Backup Timer
+
+[Timer]
+OnCalendar=*-*-* 02:00:00
+Persistent=true
+RandomizedDelaySec=300
+Unit=survive-backup-run.service
+
+[Install]
+WantedBy=timers.target

@@ -1,0 +1,40 @@
+# SURVIVE OS Backup Configuration
+# Place at /etc/survive/backup.yml
+
+# Status database for tracking backup history
+status_db: /var/lib/survive/backup/status.db
+
+# Directory for database snapshots
+snapshot_dir: /var/lib/survive/backup/snapshots
+
+# Blob storage directory
+blob_dir: /var/lib/survive/blobs
+
+# USB mount point for off-site backups
+usb_mount: /mnt/backup
+
+# Encryption passphrase for exported archives
+# WARNING: Change this and store securely!
+export_passphrase: ""
+
+# Module databases to back up
+# Format: module_name -> {db_path, key (optional for SQLCipher)}
+modules:
+  bbs:
+    db_path: /var/lib/survive/bbs/bbs.db
+  ham-radio:
+    db_path: /var/lib/survive/ham-radio/ham-radio.db
+  agriculture:
+    db_path: /var/lib/survive/agriculture/agriculture.db
+  inventory:
+    db_path: /var/lib/survive/inventory/inventory.db
+  governance:
+    db_path: /var/lib/survive/governance/governance.db
+  education:
+    db_path: /var/lib/survive/education/education.db
+  maps:
+    db_path: /var/lib/survive/maps/maps.db
+  # Encrypted modules (SQLCipher)
+  medical:
+    db_path: /var/lib/survive/medical/medical.db
+    key: ""  # Set SQLCipher key here
