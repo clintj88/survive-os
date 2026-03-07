@@ -124,10 +124,6 @@ check_cross_arch() {
 build_with_debos() {
     log "Building with debos..."
 
-    if ! command -v debos &>/dev/null; then
-        return 1
-    fi
-
     mkdir -p "${OUTPUT_DIR}"
 
     debos \
@@ -350,10 +346,14 @@ log "========================"
 
 check_cross_arch
 
-if build_with_debos 2>/dev/null; then
-    log "debos build successful"
+if command -v debos &>/dev/null; then
+    if build_with_debos; then
+        log "debos build successful"
+    else
+        error "debos build failed. Check output above for details."
+    fi
 else
-    warn "debos not available or failed, falling back to debootstrap"
+    warn "debos not available, using debootstrap"
     build_with_debootstrap
 fi
 

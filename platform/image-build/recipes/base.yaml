@@ -95,7 +95,7 @@ actions:
 
   - action: overlay
     description: Apply base filesystem overlay
-    source: overlays/base/
+    source: ../overlays/base/
 
   - action: run
     description: Set hostname
