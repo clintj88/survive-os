@@ -1,0 +1,14 @@
+database:
+  path: /var/lib/survive/inventory/inventory.db
+
+server:
+  host: 0.0.0.0
+  port: 8050
+
+redis:
+  url: redis://localhost:6379
+
+alerts:
+  default_min_stock: 10
+
+version: "0.1.0"
