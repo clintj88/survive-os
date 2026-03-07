@@ -1,0 +1,9 @@
+# SURVIVE OS - x86_64 specific packages
+linux-image-amd64
+grub-efi-amd64
+grub-pc-bin
+efibootmgr
+firmware-linux
+firmware-iwlwifi
+firmware-realtek
+firmware-atheros
