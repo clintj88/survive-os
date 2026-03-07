@@ -1,0 +1,26 @@
+[Unit]
+Description=SURVIVE OS Seed Bank Management
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=survive
+Group=survive
+WorkingDirectory=/opt/survive/agriculture/seed-bank
+ExecStart=/opt/survive/agriculture/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8030
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=survive-seed-bank
+
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/survive/seed-bank
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
