@@ -1,0 +1,15 @@
+database:
+  path: /var/lib/survive/medical-specialty/specialty.db
+  key: CHANGE_ME_IN_PRODUCTION
+
+server:
+  host: 0.0.0.0
+  port: 8040
+
+lldap:
+  url: ldap://localhost:3890
+
+agriculture_api:
+  url: http://localhost:8030
+
+version: "0.1.0"
