@@ -1,0 +1,17 @@
+# SURVIVE OS Education & Learning Configuration
+# Copy to /etc/survive/learning.yml
+
+database:
+  path: /var/lib/survive/learning/learning.db
+
+server:
+  host: 0.0.0.0
+  port: 8090
+
+external_content:
+  kiwix_zim_path: ""
+  kiwix_port: 8091
+  openstax_path: ""
+  gutenberg_path: ""
+
+version: "0.1.0"
