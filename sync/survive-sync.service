@@ -1,0 +1,26 @@
+[Unit]
+Description=SURVIVE OS CRDT Sync Engine
+After=network.target redis.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=survive
+Group=survive
+WorkingDirectory=/opt/survive/sync
+ExecStart=/opt/survive/sync/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8100
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=survive-sync
+
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/survive/sync
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target

@@ -1,7 +1,11 @@
 """Tests for blob sync adapter."""
 
-from shared.blob.store import store_bytes
+import pytest
+
+from shared.blob.store import hash_content, store_bytes
 from shared.blob.sync import (
+    BlobChunk,
+    BlobManifest,
     BlobRequest,
     ChunkedReceiver,
     build_manifest,
@@ -10,55 +14,82 @@ from shared.blob.sync import (
 )
 
 
-def test_build_manifest(tmp_path):
-    base = str(tmp_path / "blobs")
-    h1 = store_bytes(base, b"one")
-    h2 = store_bytes(base, b"two")
-    manifest = build_manifest(base, "node-a")
-    assert manifest.node_id == "node-a"
-    assert set(manifest.hashes) == {h1, h2}
+@pytest.fixture
+def blob_dir(tmp_path):
+    return str(tmp_path / "blobs")
 
 
-def test_find_missing(tmp_path):
-    base_local = str(tmp_path / "local")
-    base_remote = str(tmp_path / "remote")
-    h1 = store_bytes(base_local, b"shared")
-    h2 = store_bytes(base_remote, b"shared")
-    h3 = store_bytes(base_remote, b"remote only")
-
-    manifest = build_manifest(base_remote, "remote")
-    missing = find_missing(base_local, manifest)
-    assert h3 in missing
-    assert h1 not in missing
+@pytest.fixture
+def remote_dir(tmp_path):
+    return str(tmp_path / "remote")
 
 
-def test_chunked_transfer(tmp_path):
-    base_sender = str(tmp_path / "sender")
-    base_receiver = str(tmp_path / "receiver")
-    data = b"x" * 1000
-    h = store_bytes(base_sender, data)
+class TestManifest:
+    def test_build_manifest(self, blob_dir):
+        h1 = store_bytes(blob_dir, b"one")
+        h2 = store_bytes(blob_dir, b"two")
+        manifest = build_manifest(blob_dir, "node-a")
+        assert manifest.node_id == "node-a"
+        assert set(manifest.hashes) == {h1, h2}
 
-    # Transfer in 256-byte chunks
-    chunk_size = 256
-    receiver = None
-    offset = 0
-    while True:
-        req = BlobRequest(blob_hash=h, offset=offset, chunk_size=chunk_size)
-        chunk = read_chunk(base_sender, req)
+    def test_find_missing(self, blob_dir, remote_dir):
+        h1 = store_bytes(remote_dir, b"remote only")
+        h2 = store_bytes(blob_dir, b"local too")
+        store_bytes(remote_dir, b"local too")
+        manifest = build_manifest(remote_dir, "remote-node")
+        missing = find_missing(blob_dir, manifest)
+        assert h1 in missing
+        assert h2 not in missing
+
+
+class TestChunkedTransfer:
+    def test_read_chunk(self, blob_dir):
+        data = b"chunk test data"
+        h = store_bytes(blob_dir, data)
+        req = BlobRequest(blob_hash=h, offset=0, chunk_size=5)
+        chunk = read_chunk(blob_dir, req)
         assert chunk is not None
-        if receiver is None:
-            receiver = ChunkedReceiver(h, chunk.total_size)
-        done = receiver.receive_chunk(chunk)
-        if done:
-            break
-        offset += chunk_size
+        assert chunk.data == data[:5]
+        assert chunk.offset == 0
+        assert chunk.total_size == len(data)
+        assert chunk.is_last is False
 
-    assert receiver.finalize(base_receiver)
-    from shared.blob.store import read_bytes
-    assert read_bytes(base_receiver, h) == data
+    def test_read_chunk_last(self, blob_dir):
+        data = b"short"
+        h = store_bytes(blob_dir, data)
+        req = BlobRequest(blob_hash=h, offset=0, chunk_size=1024)
+        chunk = read_chunk(blob_dir, req)
+        assert chunk is not None
+        assert chunk.data == data
+        assert chunk.is_last is True
 
+    def test_read_chunk_missing(self, blob_dir):
+        req = BlobRequest(blob_hash="missing" * 9, offset=0)
+        assert read_chunk(blob_dir, req) is None
 
-def test_read_chunk_missing(tmp_path):
-    base = str(tmp_path / "blobs")
-    req = BlobRequest(blob_hash="nonexistent")
-    assert read_chunk(base, req) is None
+    def test_chunked_receiver(self, blob_dir):
+        data = b"reassemble me please"
+        h = hash_content(data)
+        receiver = ChunkedReceiver(h, len(data))
+        done = receiver.receive_chunk(BlobChunk(
+            blob_hash=h, offset=0, data=data[:10],
+            total_size=len(data), is_last=False,
+        ))
+        assert done is False
+        done = receiver.receive_chunk(BlobChunk(
+            blob_hash=h, offset=10, data=data[10:],
+            total_size=len(data), is_last=True,
+        ))
+        assert done is True
+        assert receiver.finalize(blob_dir) is True
+        from shared.blob.store import read_bytes
+        assert read_bytes(blob_dir, h) == data
+
+    def test_chunked_receiver_bad_hash(self, blob_dir):
+        data = b"tampered"
+        receiver = ChunkedReceiver("wrong" * 12, len(data))
+        receiver.receive_chunk(BlobChunk(
+            blob_hash="wrong" * 12, offset=0, data=data,
+            total_size=len(data), is_last=True,
+        ))
+        assert receiver.finalize(blob_dir) is False

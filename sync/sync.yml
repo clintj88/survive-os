@@ -1,0 +1,57 @@
+# SURVIVE OS Sync Engine Configuration
+# Copy to /etc/survive/sync.yml
+
+database:
+  path: /var/lib/survive/sync/sync.db
+
+storage:
+  path: /var/lib/survive/sync/documents
+
+server:
+  host: 0.0.0.0
+  port: 8100
+
+version: "0.1.0"
+
+# Node identity
+node:
+  id: ""  # Auto-generated UUID if empty
+  name: ""  # Human-readable name
+  role: spoke  # hub, spoke, or gateway
+  community: default
+
+# Sync settings
+sync:
+  interval_seconds: 30
+  batch_size: 50
+  max_document_size_bytes: 10485760  # 10MB
+  retry_max: 5
+  retry_backoff_seconds: 5
+
+# Transport configuration
+transport:
+  # Local network (TCP with mDNS discovery)
+  tcp:
+    enabled: true
+    port: 8101
+    mdns_name: _survive-sync._tcp.local.
+
+  # Redis pub/sub (same-node inter-module sync)
+  redis:
+    enabled: true
+    url: redis://localhost:6379
+    channel_prefix: survive:sync:
+
+  # Serial/radio (ham radio, sneakernet)
+  serial:
+    enabled: false
+    device: /dev/ttyUSB0
+    baud_rate: 9600
+    chunk_size: 256
+
+# Peer discovery
+discovery:
+  mdns_enabled: true
+  static_peers: []
+  # - host: 192.168.1.10
+  #   port: 8101

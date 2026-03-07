@@ -6,27 +6,26 @@ from shared.blob.encryption import HAS_CRYPTO, decrypt_blob, encrypt_blob
 
 
 @pytest.mark.skipif(not HAS_CRYPTO, reason="cryptography library not installed")
-def test_encrypt_decrypt_roundtrip():
-    data = b"sensitive medical data"
-    passphrase = "test-secret"
-    encrypted = encrypt_blob(data, passphrase)
-    assert encrypted != data
-    decrypted = decrypt_blob(encrypted, passphrase)
-    assert decrypted == data
+class TestEncryption:
+    def test_round_trip(self):
+        data = b"sensitive medical data"
+        encrypted = encrypt_blob(data, "secret-key")
+        assert encrypted != data
+        decrypted = decrypt_blob(encrypted, "secret-key")
+        assert decrypted == data
 
+    def test_wrong_passphrase(self):
+        data = b"private data"
+        encrypted = encrypt_blob(data, "correct-key")
+        with pytest.raises(Exception):
+            decrypt_blob(encrypted, "wrong-key")
 
-@pytest.mark.skipif(not HAS_CRYPTO, reason="cryptography library not installed")
-def test_wrong_passphrase():
-    data = b"secret"
-    encrypted = encrypt_blob(data, "correct")
-    with pytest.raises(Exception):  # InvalidTag from cryptography
-        decrypt_blob(encrypted, "wrong")
+    def test_different_encryptions_differ(self):
+        data = b"same data"
+        e1 = encrypt_blob(data, "key")
+        e2 = encrypt_blob(data, "key")
+        assert e1 != e2
 
-
-@pytest.mark.skipif(not HAS_CRYPTO, reason="cryptography library not installed")
-def test_different_encryptions_differ():
-    data = b"same data"
-    enc1 = encrypt_blob(data, "pass")
-    enc2 = encrypt_blob(data, "pass")
-    # Random salt+nonce means different ciphertext each time
-    assert enc1 != enc2
+    def test_empty_data(self):
+        encrypted = encrypt_blob(b"", "key")
+        assert decrypt_blob(encrypted, "key") == b""
