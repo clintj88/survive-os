@@ -1,0 +1,26 @@
+[Unit]
+Description=SURVIVE OS Weather Station
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=survive
+Group=survive
+WorkingDirectory=/opt/survive/weather
+ExecStart=/opt/survive/weather/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8080
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=survive-weather
+
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/survive/weather
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
