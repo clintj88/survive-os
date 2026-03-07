@@ -1,0 +1,32 @@
+[Unit]
+Description=SURVIVE OS - Example module
+After=network.target
+
+[Service]
+Type=simple
+User=survive-example
+Group=survive
+EnvironmentFile=-/etc/survive/example.env
+WorkingDirectory=/opt/survive/example
+ExecStart=/opt/survive/example/venv/bin/uvicorn app:app --host 0.0.0.0 --port 8000
+ExecStartPost=/bin/sh -c 'sleep 2 && curl -sf http://localhost:8000/health > /dev/null'
+Restart=on-failure
+RestartSec=5
+StartLimitIntervalSec=60
+StartLimitBurst=5
+
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=survive-example
+
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/survive/example
+NoNewPrivileges=yes
+PrivateTmp=yes
+
+MemoryMax=512M
+CPUQuota=80%
+
+[Install]
+WantedBy=multi-user.target
