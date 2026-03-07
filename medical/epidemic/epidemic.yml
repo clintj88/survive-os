@@ -1,0 +1,19 @@
+database:
+  path: /var/lib/survive/epidemic/epidemic.db
+  key: changeme-epidemic-key
+
+server:
+  host: 0.0.0.0
+  port: 8040
+
+surveillance:
+  baseline_window_weeks: 4
+  alert_thresholds:
+    watch: 1.5
+    warning: 2.0
+    critical: 3.0
+
+redis:
+  url: redis://localhost:6379
+
+version: "0.1.0"

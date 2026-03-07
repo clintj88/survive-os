@@ -1,0 +1,21 @@
+database:
+  path: /var/lib/survive/pharmacy/pharmacy.db
+  key: change-me-in-production
+
+server:
+  host: 0.0.0.0
+  port: 8040
+
+alerts:
+  thresholds_days:
+    - 30
+    - 60
+    - 90
+
+redis:
+  host: localhost
+  port: 6379
+  channel: medical.pharmacy-alerts
+
+lldap:
+  url: ldap://localhost:3890
