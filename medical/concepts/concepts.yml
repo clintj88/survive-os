@@ -1,0 +1,12 @@
+database:
+  path: /var/lib/survive/concepts/concepts.db
+  key: survive-concepts-default-key
+
+server:
+  host: 0.0.0.0
+  port: 8041
+
+lldap:
+  url: ldap://localhost:3890
+
+version: "0.1.0"
