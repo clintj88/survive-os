@@ -1,0 +1,24 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "survive-badge-provisioner"
+version = "0.1.0"
+description = "CLI tool for provisioning SURVIVE OS user badges via LLDAP"
+requires-python = ">=3.11"
+dependencies = [
+    "requests>=2.31.0",
+    "click>=8.1.0",
+    "tabulate>=0.9.0",
+]
+
+[project.scripts]
+badge-provisioner = "badge_provisioner.cli:main"
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

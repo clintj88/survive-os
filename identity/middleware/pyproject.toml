@@ -1,0 +1,21 @@
+[build-system]
+requires = ["setuptools>=68.0", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "survive-rbac"
+version = "0.1.0"
+description = "RBAC middleware for SURVIVE OS FastAPI services"
+requires-python = ">=3.11"
+dependencies = [
+    "fastapi>=0.104.0",
+    "requests>=2.31.0",
+    "pydantic>=2.5.0",
+]
+
+[tool.black]
+line-length = 88
+target-version = ["py311"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

@@ -1,0 +1,19 @@
+[Unit]
+Description=SURVIVE OS Identity Admin Service
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=survive
+Group=survive
+WorkingDirectory=/opt/survive/identity
+ExecStart=/opt/survive/identity/venv/bin/uvicorn service.app:app --host 0.0.0.0 --port 8001
+Restart=always
+RestartSec=5
+Environment=LLDAP_URL=http://localhost:17170
+Environment=LLDAP_ADMIN_USERNAME=admin
+EnvironmentFile=-/etc/survive/identity.yml
+
+[Install]
+WantedBy=multi-user.target

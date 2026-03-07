@@ -1,0 +1,44 @@
+[sssd]
+config_file_version = 2
+services = nss, pam
+domains = survive
+
+[nss]
+filter_groups = root
+filter_users = root
+
+[pam]
+offline_credentials_expiration = 7
+
+[domain/survive]
+id_provider = ldap
+auth_provider = ldap
+chpass_provider = ldap
+
+ldap_uri = ldap://{{ LLDAP_HOST }}:{{ LLDAP_LDAP_PORT }}
+ldap_search_base = {{ LLDAP_LDAP_BASE_DN }}
+ldap_default_bind_dn = uid={{ LLDAP_ADMIN_USERNAME }},ou=people,{{ LLDAP_LDAP_BASE_DN }}
+ldap_default_authtok = {{ LLDAP_ADMIN_PASSWORD }}
+ldap_default_authtok_type = password
+
+ldap_user_search_base = ou=people,{{ LLDAP_LDAP_BASE_DN }}
+ldap_group_search_base = ou=groups,{{ LLDAP_LDAP_BASE_DN }}
+
+ldap_user_object_class = person
+ldap_user_name = uid
+ldap_user_uid_number = uidNumber
+ldap_user_gid_number = gidNumber
+ldap_user_home_directory = homeDirectory
+ldap_user_shell = loginShell
+
+ldap_group_object_class = groupOfUniqueNames
+ldap_group_name = cn
+ldap_group_member = uniqueMember
+
+ldap_tls_reqcert = never
+
+cache_credentials = true
+enumerate = true
+
+access_provider = simple
+simple_allow_groups = admin, medic, farmer, engineer, security, comms, governance, educator
