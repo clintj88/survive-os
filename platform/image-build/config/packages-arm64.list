@@ -1,0 +1,8 @@
+# SURVIVE OS - ARM64 (Raspberry Pi 4) specific packages
+linux-image-arm64
+raspi-firmware
+firmware-brcm80211
+firmware-misc-nonfree
+u-boot-rpi
+device-tree-compiler
+libraspberrypi-bin

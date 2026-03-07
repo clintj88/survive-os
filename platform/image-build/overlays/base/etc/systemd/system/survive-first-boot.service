@@ -1,0 +1,15 @@
+[Unit]
+Description=SURVIVE OS First Boot Initialization
+ConditionPathExists=!/var/lib/survive/.first-boot-complete
+After=network.target local-fs.target
+Before=nginx.service
+
+[Service]
+Type=oneshot
+ExecStart=/usr/lib/survive/first-boot.sh
+RemainAfterExit=yes
+StandardOutput=journal+console
+StandardError=journal+console
+
+[Install]
+WantedBy=multi-user.target

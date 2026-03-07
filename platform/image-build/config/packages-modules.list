@@ -1,0 +1,24 @@
+# SURVIVE OS - Module dependency packages
+# Python module dependencies
+python3-fastapi
+python3-uvicorn
+python3-yaml
+python3-aiohttp
+python3-sqlalchemy
+python3-cryptography
+python3-jwt
+python3-passlib
+python3-bcrypt
+
+# Database
+libsqlcipher-dev
+
+# Maps
+libmapbox-variant-dev
+
+# Media/documents
+imagemagick
+pandoc
+
+# Serial/hardware communication
+python3-serial

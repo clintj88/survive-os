@@ -1,0 +1,129 @@
+{{- $suite := or .suite "bookworm" -}}
+{{- $mirror := or .mirror "http://deb.debian.org/debian" -}}
+{{- $arch := or .arch "arm64" -}}
+
+architecture: {{ $arch }}
+
+actions:
+  - action: debootstrap
+    suite: {{ $suite }}
+    components:
+      - main
+      - contrib
+      - non-free
+      - non-free-firmware
+    mirror: {{ $mirror }}
+
+  - action: apt
+    recommends: false
+    description: Install base packages
+    packages:
+      - systemd
+      - systemd-sysv
+      - dbus
+      - udev
+      - kmod
+      - locales
+      - console-setup
+      - python3
+      - python3-pip
+      - python3-venv
+      - nodejs
+      - npm
+      - nginx
+      - redis-server
+      - sqlite3
+      - git
+      - curl
+      - wget
+      - ca-certificates
+      - network-manager
+      - wireless-tools
+      - wpasupplicant
+      - avahi-daemon
+      - avahi-utils
+      - nftables
+      - iproute2
+      - iputils-ping
+      - dnsutils
+      - openssh-server
+      - sudo
+      - less
+      - vim-tiny
+      - cron
+      - logrotate
+      - lsb-release
+      - gnupg
+      - sssd
+      - sssd-ldap
+      - libpam-sss
+      - libnss-sss
+      - usbutils
+      - pciutils
+      - i2c-tools
+
+  - action: run
+    description: Create survive user and group
+    chroot: true
+    command: |
+      groupadd --gid 900 survive || true
+      useradd --uid 900 --gid 900 --system --create-home \
+        --shell /bin/bash survive || true
+      usermod -aG sudo survive
+
+  - action: run
+    description: Create SURVIVE OS directory structure
+    chroot: true
+    command: |
+      mkdir -p /var/lib/survive
+      mkdir -p /etc/survive
+      mkdir -p /usr/lib/survive
+      mkdir -p /var/log/survive
+      chown -R survive:survive /var/lib/survive
+      chown -R survive:survive /etc/survive
+      chown -R survive:survive /var/log/survive
+
+  - action: run
+    description: Configure locale and timezone
+    chroot: true
+    command: |
+      echo "en_US.UTF-8 UTF-8" > /etc/locale.gen
+      locale-gen
+      echo "LANG=en_US.UTF-8" > /etc/default/locale
+      ln -sf /usr/share/zoneinfo/UTC /etc/localtime
+      echo "UTC" > /etc/timezone
+
+  - action: overlay
+    description: Apply base filesystem overlay
+    source: overlays/base/
+
+  - action: run
+    description: Set hostname
+    chroot: true
+    command: echo "survive-node" > /etc/hostname
+
+  - action: run
+    description: Enable core services
+    chroot: true
+    command: |
+      systemctl enable systemd-networkd
+      systemctl enable avahi-daemon
+      systemctl enable NetworkManager
+      systemctl enable nginx
+      systemctl enable redis-server
+      systemctl enable ssh
+      systemctl enable survive-first-boot.service
+
+  - action: run
+    description: Configure sudo for survive user (no password)
+    chroot: true
+    command: |
+      echo "survive ALL=(ALL) NOPASSWD: ALL" > /etc/sudoers.d/survive
+      chmod 0440 /etc/sudoers.d/survive
+
+  - action: run
+    description: Clean up apt cache
+    chroot: true
+    command: |
+      apt-get clean
+      rm -rf /var/lib/apt/lists/*

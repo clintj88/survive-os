@@ -1,0 +1,102 @@
+{{- $suite := or .suite "bookworm" -}}
+{{- $mirror := or .mirror "http://deb.debian.org/debian" -}}
+{{- $image := or .image "survive-os-arm64.img" -}}
+
+architecture: arm64
+
+actions:
+  - action: recipe
+    description: Build base system
+    recipe: base.yaml
+    variables:
+      arch: arm64
+      suite: {{ $suite }}
+      mirror: {{ $mirror }}
+
+  - action: apt
+    recommends: false
+    description: Install ARM64/Raspberry Pi packages
+    packages:
+      - linux-image-arm64
+      - raspi-firmware
+      - firmware-brcm80211
+      - firmware-misc-nonfree
+      - device-tree-compiler
+
+  - action: run
+    description: Configure Raspberry Pi boot
+    chroot: true
+    command: |
+      mkdir -p /boot/firmware
+
+      cat > /boot/firmware/config.txt << 'PICONF'
+      # SURVIVE OS - Raspberry Pi 4 Configuration
+      arm_64bit=1
+      kernel=vmlinuz
+      initramfs initrd.img followkernel
+
+      # GPU memory split (headless server)
+      gpu_mem=64
+
+      # Enable UART serial console
+      enable_uart=1
+
+      # Disable Bluetooth on UART (use mini-UART instead)
+      dtoverlay=miniuart-bt
+
+      # Enable I2C and SPI for sensor support
+      dtparam=i2c_arm=on
+      dtparam=spi=on
+
+      # USB power output (max)
+      max_usb_current=1
+
+      # Disable splash screen
+      disable_splash=1
+
+      # Overclock settings (conservative)
+      arm_freq=1500
+      over_voltage=0
+      PICONF
+
+      cat > /boot/firmware/cmdline.txt << 'CMDLINE'
+      console=serial0,115200 console=tty1 root=LABEL=SURVIVEROOT rootfstype=ext4 fsck.repair=yes rootwait quiet
+      CMDLINE
+
+  - action: run
+    description: Label root partition and configure fstab
+    chroot: true
+    command: |
+      cat > /etc/fstab << 'FSTAB'
+      LABEL=SURVIVEROOT  /               ext4  defaults,noatime  0 1
+      LABEL=SURVIVEBOOT  /boot/firmware  vfat  defaults          0 2
+      tmpfs               /tmp            tmpfs defaults,nosuid   0 0
+      FSTAB
+
+  - action: image-partition
+    description: Create disk partitions
+    imagename: {{ $image }}
+    imagesize: 4GB
+    partitiontype: msdos
+    partitions:
+      - name: boot
+        fs: fat32
+        start: 1MB
+        end: 256MB
+        flags: [boot]
+      - name: root
+        fs: ext4
+        start: 256MB
+        end: 100%
+
+  - action: filesystem-deploy
+    description: Deploy filesystem to image
+    setup-fstab: false
+    setup-kernel-cmdline: false
+
+  - action: run
+    description: Label partitions
+    postprocess: true
+    command: |
+      e2label {{ $image }}2 SURVIVEROOT || true
+      fatlabel {{ $image }}1 SURVIVEBOOT || true

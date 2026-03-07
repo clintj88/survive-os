@@ -1,0 +1,57 @@
+# SURVIVE OS - Base packages (all architectures)
+# Core system
+systemd
+systemd-sysv
+dbus
+udev
+kmod
+locales
+console-setup
+
+# Runtime dependencies
+python3
+python3-pip
+python3-venv
+nodejs
+npm
+nginx
+redis-server
+sqlite3
+
+# Development/build tools
+git
+curl
+wget
+ca-certificates
+
+# Networking
+network-manager
+wireless-tools
+wpasupplicant
+avahi-daemon
+avahi-utils
+nftables
+iproute2
+iputils-ping
+dnsutils
+openssh-server
+
+# System utilities
+sudo
+less
+vim-tiny
+cron
+logrotate
+lsb-release
+gnupg
+
+# LLDAP/SSSD dependencies
+sssd
+sssd-ldap
+libpam-sss
+libnss-sss
+
+# Hardware support
+usbutils
+pciutils
+i2c-tools

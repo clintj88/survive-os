@@ -1,0 +1,77 @@
+# SURVIVE OS Image Build Configuration
+
+# Image settings per architecture
+images:
+  arm64:
+    size: "4GB"
+    partition_layout:
+      - name: boot
+        filesystem: vfat
+        size: "256MB"
+        mountpoint: /boot/firmware
+        flags: [boot]
+      - name: root
+        filesystem: ext4
+        size: "3.7GB"
+        mountpoint: /
+    kernel: linux-image-arm64
+    output_format: img  # Raw disk image for dd to SD card
+
+  amd64:
+    size: "8GB"
+    partition_layout:
+      - name: efi
+        filesystem: vfat
+        size: "512MB"
+        mountpoint: /boot/efi
+        flags: [boot, esp]
+      - name: root
+        filesystem: ext4
+        size: "7.5GB"
+        mountpoint: /
+    kernel: linux-image-amd64
+    output_format: img  # Raw disk image; ISO also generated
+
+# Debian release
+debian:
+  suite: bookworm
+  mirror: http://deb.debian.org/debian
+  components: [main, contrib, non-free, non-free-firmware]
+
+# System configuration
+system:
+  hostname: survive-node
+  locale: en_US.UTF-8
+  timezone: UTC
+  user: survive
+  group: survive
+  uid: 900
+  gid: 900
+
+# Build variants
+variants:
+  minimal:
+    description: "Base OS + identity + platform shell"
+    modules:
+      - platform
+      - identity
+  full:
+    description: "All SURVIVE OS modules"
+    modules:
+      - platform
+      - identity
+      - comms
+      - security
+      - agriculture
+      - medical
+      - resources
+      - maps
+      - governance
+      - weather
+      - education
+
+# Compression
+compression:
+  format: xz
+  level: 6
+  threads: 0  # auto-detect

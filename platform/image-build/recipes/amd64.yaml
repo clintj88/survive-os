@@ -1,0 +1,84 @@
+{{- $suite := or .suite "bookworm" -}}
+{{- $mirror := or .mirror "http://deb.debian.org/debian" -}}
+{{- $image := or .image "survive-os-amd64.img" -}}
+
+architecture: amd64
+
+actions:
+  - action: recipe
+    description: Build base system
+    recipe: base.yaml
+    variables:
+      arch: amd64
+      suite: {{ $suite }}
+      mirror: {{ $mirror }}
+
+  - action: apt
+    recommends: false
+    description: Install x86_64 packages
+    packages:
+      - linux-image-amd64
+      - grub-efi-amd64
+      - grub-pc-bin
+      - efibootmgr
+      - firmware-linux
+      - firmware-iwlwifi
+      - firmware-realtek
+      - firmware-atheros
+
+  - action: run
+    description: Configure fstab
+    chroot: true
+    command: |
+      cat > /etc/fstab << 'FSTAB'
+      LABEL=SURVIVEROOT  /           ext4  defaults,noatime  0 1
+      LABEL=SURVIVEEFI   /boot/efi   vfat  defaults          0 2
+      tmpfs               /tmp        tmpfs defaults,nosuid   0 0
+      FSTAB
+
+  - action: image-partition
+    description: Create disk partitions
+    imagename: {{ $image }}
+    imagesize: 8GB
+    partitiontype: gpt
+    partitions:
+      - name: efi
+        fs: fat32
+        start: 1MB
+        end: 512MB
+        flags: [boot, esp]
+      - name: root
+        fs: ext4
+        start: 512MB
+        end: 100%
+
+  - action: filesystem-deploy
+    description: Deploy filesystem to image
+    setup-fstab: false
+    setup-kernel-cmdline: false
+
+  - action: run
+    description: Install GRUB bootloader
+    chroot: true
+    command: |
+      mkdir -p /boot/efi
+      grub-install --target=x86_64-efi --efi-directory=/boot/efi \
+        --bootloader-id=survive --no-nvram --removable 2>/dev/null || true
+      grub-install --target=i386-pc /dev/null 2>/dev/null || true
+
+      cat > /etc/default/grub << 'GRUBCFG'
+      GRUB_DEFAULT=0
+      GRUB_TIMEOUT=3
+      GRUB_DISTRIBUTOR="SURVIVE OS"
+      GRUB_CMDLINE_LINUX_DEFAULT="quiet"
+      GRUB_CMDLINE_LINUX="root=LABEL=SURVIVEROOT"
+      GRUBCFG
+
+      update-grub 2>/dev/null || true
+
+  - action: run
+    description: Label partitions
+    postprocess: true
+    command: |
+      e2label {{ $image }}2 SURVIVEROOT || true
+      fatlabel {{ $image }}1 SURVIVEEFI || true

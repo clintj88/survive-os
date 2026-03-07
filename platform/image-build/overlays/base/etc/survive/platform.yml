@@ -1,0 +1,41 @@
+# SURVIVE OS Platform Configuration
+version: "1.0.0"
+node_name: survive-node
+
+# Module port assignments
+ports:
+  platform: 8000
+  identity: 8001
+  comms: 8010
+  security: 8020
+  agriculture: 8030
+  medical: 8040
+  resources: 8050
+  maps: 8060
+  governance: 8070
+  weather: 8080
+  education: 8090
+
+# Data directories
+paths:
+  data: /var/lib/survive
+  config: /etc/survive
+  modules: /usr/lib/survive/modules
+  logs: /var/log/survive
+
+# LLDAP identity provider
+identity:
+  ldap_uri: ldap://localhost:3890
+  base_dn: dc=survive,dc=local
+  http_port: 17170
+
+# Redis pub/sub
+redis:
+  host: 127.0.0.1
+  port: 6379
+
+# Sync engine
+sync:
+  enabled: true
+  protocol: automerge
+  discovery: mdns
