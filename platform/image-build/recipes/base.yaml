@@ -1,6 +1,7 @@
 {{- $suite := or .suite "bookworm" -}}
 {{- $mirror := or .mirror "http://deb.debian.org/debian" -}}
 {{- $arch := or .arch "arm64" -}}
+{{- $overlay_base := or .overlay_base "../overlays/base/" -}}
 
 architecture: {{ $arch }}
 
@@ -95,7 +96,7 @@ actions:
 
   - action: overlay
     description: Apply base filesystem overlay
-    source: ../overlays/base/
+    source: {{ $overlay_base }}
 
   - action: run
     description: Set hostname

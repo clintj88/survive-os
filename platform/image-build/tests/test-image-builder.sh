@@ -399,10 +399,12 @@ for b in "${bad_profile_refs[@]}"; do echo "    BAD REF: $b"; done
 # ── 16. Debos recipe overlay path ──
 echo ""
 echo "── 16. Debos Recipe Paths ──"
-overlay_path=$(grep 'source:' "${SCRIPT_DIR}/recipes/base.yaml" | head -1 | sed 's/.*source: *//')
-# Resolve relative to recipes/ dir
-resolved="${SCRIPT_DIR}/recipes/${overlay_path}"
-assert "base.yaml overlay path resolves" "$([[ -d "$resolved" ]] && echo true || echo false)"
+# base.yaml uses a template variable for the overlay path
+assert "base.yaml overlay uses template var" "$(grep -q 'overlay_base' "${SCRIPT_DIR}/recipes/base.yaml" && echo true || echo false)"
+# build.sh passes the overlay_base template var to debos
+assert "build.sh passes overlay_base to debos" "$(grep -q 'overlay_base' "${SCRIPT_DIR}/build.sh" && echo true || echo false)"
+# The overlay directory itself exists
+assert "overlays/base directory exists" "$([[ -d "${SCRIPT_DIR}/overlays/base" ]] && echo true || echo false)"
 
 # ── 17. build.sh variant support ──
 echo ""
