@@ -1,0 +1,21 @@
+# SURVIVE OS Livestock Management Configuration
+# Copy to /etc/survive/livestock.yml
+
+database:
+  path: /var/lib/survive/livestock/livestock.db
+
+server:
+  host: 0.0.0.0
+  port: 8030
+
+redis:
+  url: redis://localhost:6379
+  channel: agriculture.livestock
+
+photos:
+  path: /var/lib/survive/livestock/photos
+
+breeding:
+  inbreeding_threshold: 0.0625
+
+version: "0.1.0"
