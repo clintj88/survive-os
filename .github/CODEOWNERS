@@ -1,0 +1,14 @@
+# SURVIVE OS - Code Ownership
+# Each line: file pattern + owner(s)
+# Owners auto-assigned as reviewers on PRs
+
+/platform/     @survive-os/platform-team
+/identity/     @survive-os/identity-team
+/sync/         @survive-os/sync-team
+/comms/        @survive-os/comms-team
+/security/     @survive-os/security-team
+/agriculture/  @survive-os/agriculture-team
+/medical/      @survive-os/medical-team
+/resources/    @survive-os/resources-team
+/maps/         @survive-os/maps-team
+/frontend/     @survive-os/frontend-team
