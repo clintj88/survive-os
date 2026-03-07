@@ -1,0 +1,11 @@
+# SURVIVE OS Engineering & Maintenance Configuration
+# Copy to /etc/survive/engineering.yml
+
+database:
+  path: /var/lib/survive/engineering/engineering.db
+
+server:
+  host: 0.0.0.0
+  port: 8050
+
+version: "0.1.0"
