@@ -1,0 +1,26 @@
+[Unit]
+Description=SURVIVE OS Lab Results Tracking
+After=network.target
+Wants=network.target
+
+[Service]
+Type=simple
+User=survive
+Group=survive
+WorkingDirectory=/opt/survive/medical/lab
+ExecStart=/opt/survive/medical/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8042
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=survive-lab
+
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/survive/lab
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
