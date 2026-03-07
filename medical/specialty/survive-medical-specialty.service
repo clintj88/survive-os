@@ -1,0 +1,24 @@
+[Unit]
+Description=SURVIVE OS Medical Specialty Module
+After=network.target survive-lldap.service
+Wants=survive-lldap.service
+
+[Service]
+Type=simple
+User=survive
+Group=survive
+WorkingDirectory=/opt/survive/medical/specialty
+ExecStart=/opt/survive/medical/specialty/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8040
+Restart=always
+RestartSec=5
+Environment=PYTHONUNBUFFERED=1
+
+# Security hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ProtectHome=yes
+ReadWritePaths=/var/lib/survive/medical-specialty
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
