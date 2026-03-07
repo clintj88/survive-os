@@ -1,0 +1,29 @@
+[Unit]
+Description=SURVIVE OS Meshtastic Gateway
+After=network.target redis.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=survive
+Group=survive
+WorkingDirectory=/opt/survive/comms/meshtastic-gw
+ExecStart=/opt/survive/comms/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8010
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=survive-meshtastic-gw
+
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/survive/meshtastic-gw
+ProtectHome=yes
+PrivateTmp=yes
+
+# Allow serial device access for Meshtastic radios
+SupplementaryGroups=dialout
+
+[Install]
+WantedBy=multi-user.target
