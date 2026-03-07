@@ -23,6 +23,8 @@ Nginx reverse proxy configuration routing all modules through a single entry poi
 | `/`            | 8000 | Platform shell      |
 | `/identity/`   | 8001 | Identity admin      |
 | `/comms/`      | 8010 | Communication / BBS |
+| `/comms/ham-radio/` | 8011 | Communication / Ham Radio |
+| `/comms/meshtastic/` | 8012 | Communication / Meshtastic GW |
 | `/security/`   | 8020 | Security / Drone ops|
 | `/agriculture/` | 8030 | Agriculture        |
 | `/medical/`    | 8040 | Medical (encrypted) |

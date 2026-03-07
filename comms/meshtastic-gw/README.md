@@ -16,7 +16,7 @@ Gateway daemon that bridges Meshtastic mesh radio networks to the SURVIVE OS pla
 ```bash
 pip install -r requirements.txt
 cp meshtastic-gw.yml /etc/survive/meshtastic-gw.yml
-uvicorn app.main:app --host 0.0.0.0 --port 8010
+uvicorn app.main:app --host 0.0.0.0 --port 8012
 ```
 
 ## API Endpoints

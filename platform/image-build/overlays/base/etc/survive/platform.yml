@@ -6,7 +6,9 @@ node_name: survive-node
 ports:
   platform: 8000
   identity: 8001
-  comms: 8010
+  comms: 8010        # BBS (primary)
+  comms_ham_radio: 8011
+  comms_meshtastic: 8012
   security: 8020
   agriculture: 8030
   medical: 8040

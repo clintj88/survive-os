@@ -39,7 +39,7 @@ Copy `ham-radio.yml` to `/etc/survive/ham-radio.yml` and adjust settings.
 
 ```bash
 pip install -r requirements.txt
-uvicorn app.main:app --host 0.0.0.0 --port 8010
+uvicorn app.main:app --host 0.0.0.0 --port 8011
 ```
 
 ## Testing
@@ -51,4 +51,4 @@ pytest tests/
 
 ## Port
 
-8010 (Comms subsystem)
+8011 (Comms subsystem — ham radio)

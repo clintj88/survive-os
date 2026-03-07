@@ -9,6 +9,6 @@ COPY . .
 
 RUN mkdir -p /var/lib/survive/meshtastic-gw /etc/survive
 
-EXPOSE 8010
+EXPOSE 8012
 
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8010"]
+CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8012"]
