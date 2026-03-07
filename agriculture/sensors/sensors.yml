@@ -1,0 +1,27 @@
+# SURVIVE OS Sensor Integration Configuration
+# Copy to /etc/survive/sensors.yml
+
+database:
+  path: /var/lib/survive/sensors/sensors.db
+
+server:
+  host: 0.0.0.0
+  port: 8030
+
+redis:
+  url: redis://localhost:6379
+  subscribe_channel: comms.meshtastic
+  frost_alert_channel: agriculture.frost-alert
+  comms_alert_channel: comms.alerts
+  weather_channel: weather.observations
+
+frost:
+  threshold_c: 2.0
+
+data_retention:
+  days: 365
+
+node_timeout:
+  minutes: 30
+
+version: "0.1.0"

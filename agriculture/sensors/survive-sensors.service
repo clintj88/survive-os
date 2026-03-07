@@ -1,0 +1,26 @@
+[Unit]
+Description=SURVIVE OS Sensor Integration
+After=network.target redis.service
+Wants=network.target
+
+[Service]
+Type=simple
+User=survive
+Group=survive
+WorkingDirectory=/opt/survive/agriculture/sensors
+ExecStart=/opt/survive/agriculture/venv/bin/uvicorn app.main:app --host 0.0.0.0 --port 8030
+Restart=on-failure
+RestartSec=5
+StandardOutput=journal
+StandardError=journal
+SyslogIdentifier=survive-sensors
+
+# Hardening
+NoNewPrivileges=yes
+ProtectSystem=strict
+ReadWritePaths=/var/lib/survive/sensors
+ProtectHome=yes
+PrivateTmp=yes
+
+[Install]
+WantedBy=multi-user.target
