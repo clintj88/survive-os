@@ -1,0 +1,16 @@
+[Unit]
+Description=SURVIVE OS Platform Shell
+After=network.target
+
+[Service]
+Type=simple
+User=survive
+WorkingDirectory=/opt/survive/frontend
+ExecStart=/usr/bin/node server.js
+Restart=on-failure
+RestartSec=5
+Environment=NODE_ENV=production
+Environment=PORT=8000
+
+[Install]
+WantedBy=multi-user.target
