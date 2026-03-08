@@ -107,7 +107,6 @@ actions:
       systemctl enable nginx
       systemctl enable redis-server
       systemctl enable ssh
-      systemctl enable survive-first-boot.service
 
   - action: run
     description: Configure sudo for survive user (no password)

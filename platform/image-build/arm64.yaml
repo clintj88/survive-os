@@ -17,6 +17,11 @@ actions:
     description: Apply base filesystem overlay
     source: overlays/base/
 
+  - action: run
+    description: Enable first-boot service from overlay
+    chroot: true
+    command: systemctl enable survive-first-boot.service
+
   - action: apt
     recommends: false
     description: Install ARM64/Raspberry Pi packages
