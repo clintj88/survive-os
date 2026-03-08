@@ -127,6 +127,7 @@ build_with_debos() {
     mkdir -p "${OUTPUT_DIR}"
 
     debos \
+        --memory=4Gb \
         --artifactdir="${OUTPUT_DIR}" \
         --template-var="suite:${SUITE}" \
         --template-var="mirror:${MIRROR}" \
