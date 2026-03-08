@@ -7,7 +7,7 @@ architecture: arm64
 actions:
   - action: recipe
     description: Build base system
-    recipe: base.yaml
+    recipe: recipes/base.yaml
     variables:
       arch: arm64
       suite: {{ $suite }}
