@@ -13,6 +13,10 @@ actions:
       suite: {{ $suite }}
       mirror: {{ $mirror }}
 
+  - action: overlay
+    description: Apply base filesystem overlay
+    source: overlays/base/
+
   - action: apt
     recommends: false
     description: Install x86_64 packages

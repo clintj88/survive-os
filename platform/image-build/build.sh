@@ -131,7 +131,6 @@ build_with_debos() {
         --template-var="suite:${SUITE}" \
         --template-var="mirror:${MIRROR}" \
         --template-var="image:${IMAGE_NAME}" \
-        --template-var="overlay_base:overlays/base/" \
         "${SCRIPT_DIR}/${ARCH}.yaml"
 }
 

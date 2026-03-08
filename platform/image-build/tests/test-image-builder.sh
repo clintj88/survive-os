@@ -399,10 +399,9 @@ for b in "${bad_profile_refs[@]}"; do echo "    BAD REF: $b"; done
 # ── 16. Debos recipe overlay path ──
 echo ""
 echo "── 16. Debos Recipe Paths ──"
-# base.yaml uses a template variable for the overlay path
-assert "base.yaml overlay uses template var" "$(grep -q 'overlay_base' "${SCRIPT_DIR}/recipes/base.yaml" && echo true || echo false)"
-# build.sh passes the overlay_base template var to debos
-assert "build.sh passes overlay_base to debos" "$(grep -q 'overlay_base' "${SCRIPT_DIR}/build.sh" && echo true || echo false)"
+# Top-level recipes (arm64/amd64) contain the overlay action with correct path
+assert "arm64.yaml has overlay action" "$(grep -q 'overlays/base/' "${SCRIPT_DIR}/arm64.yaml" && echo true || echo false)"
+assert "amd64.yaml has overlay action" "$(grep -q 'overlays/base/' "${SCRIPT_DIR}/amd64.yaml" && echo true || echo false)"
 # The overlay directory itself exists
 assert "overlays/base directory exists" "$([[ -d "${SCRIPT_DIR}/overlays/base" ]] && echo true || echo false)"
 

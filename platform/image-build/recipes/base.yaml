@@ -1,8 +1,6 @@
 {{- $suite := or .suite "bookworm" -}}
 {{- $mirror := or .mirror "http://deb.debian.org/debian" -}}
 {{- $arch := or .arch "arm64" -}}
-{{- $overlay_base := or .overlay_base "overlays/base/" -}}
-
 architecture: {{ $arch }}
 
 actions:
@@ -93,10 +91,6 @@ actions:
       echo "LANG=en_US.UTF-8" > /etc/default/locale
       ln -sf /usr/share/zoneinfo/UTC /etc/localtime
       echo "UTC" > /etc/timezone
-
-  - action: overlay
-    description: Apply base filesystem overlay
-    source: {{ $overlay_base }}
 
   - action: run
     description: Set hostname
